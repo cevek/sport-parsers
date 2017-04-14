@@ -1,6 +1,12 @@
 import {getHTML} from '../lib/query';
 import {
-    getAttr, getAttrOrNull, getNode, getNodeList, getNodeOrNull, getText, getTextOrNull,
+    getAttr,
+    getAttrOrNull,
+    getNode,
+    getNodeListOrNull,
+    getNum,
+    getNumOrNull,
+    getText,
     getWithRegexp
 } from '../lib/dom-helper';
 
@@ -10,28 +16,30 @@ export interface Referee {
     image: Maybe<string>,
     country: string,
     birthday: Maybe<string>,
-    matches: string,
-    yellowCards: Maybe<string>,
-    secYellowCards: Maybe<string>,
-    redCards: Maybe<string>,
-    penalties: Maybe<string>
+    matches: number,
+    yellowCards: Maybe<number>,
+    secYellowCards: Maybe<number>,
+    redCards: Maybe<number>,
+    penalties: Maybe<number>
 }
 
-export async function getReferees(url: string):Promise<Referee[]> {
+export async function getReferees(url: string): Promise<Referee[]> {
     const doc = await getHTML(url);
-    const trs = getNodeList(doc, 'table.b-table-sortlist tbody tr');
+    const trs = getNodeListOrNull(doc, 'table.b-table-sortlist tbody tr');
+    if (!trs) return [];
     return trs.map(tr => {
-        const image = getAttrOrNull(getNodeOrNull(tr, 'td:nth-child(2) img'), 'src');
+        let image: Maybe<string> = getAttr(getNode(tr, 'td:nth-child(2) img'), 'src');
+        image = image.match(/no_picture/) ? null : image;
         const nameNode = getNode(tr, 'td:nth-child(3) a');
-        const name = getText(nameNode);
+        const name = getText(nameNode).replace(/\s+/, ' ');
         const id = getWithRegexp(getAttr(nameNode, 'href'), /(\d+)\.html$/);
         const country = getText(tr, 'td:nth-child(4)');
         const birthday = getAttrOrNull(getNode(tr, 'td:nth-child(5)'), 'sortOrder');
-        const matches = getText(tr, 'td:nth-child(6)');
-        const yellowCards = getTextOrNull(tr, 'td:nth-child(7)');
-        const secYellowCards = getTextOrNull(tr, 'td:nth-child(8)');
-        const redCards = getTextOrNull(tr, 'td:nth-child(9)');
-        const penalties = getTextOrNull(tr, 'td:nth-child(10)');
+        const matches = getNum(tr, 'td:nth-child(6)');
+        const yellowCards = getNumOrNull(tr, 'td:nth-child(7)');
+        const secYellowCards = getNumOrNull(tr, 'td:nth-child(8)');
+        const redCards = getNumOrNull(tr, 'td:nth-child(9)');
+        const penalties = getNumOrNull(tr, 'td:nth-child(10)');
         return {
             image,
             name,
