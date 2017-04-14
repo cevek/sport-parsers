@@ -1,16 +1,28 @@
 import {getHTML} from '../lib/query';
 import {getAttr, getNodeList, validateValue} from '../lib/dom-helper';
-export async function getSeasonReferrersLinks(leagueUrl: string) {
+export interface SeasonResult {
+    name: string;
+    tournaments: TournamentResult[];
+}
+export interface TournamentResult {
+    url: string;
+    id: string;
+}
+export async function getSeasonRefereeLinks(leagueUrl: string): Promise<SeasonResult[]> {
     const doc = await getHTML(leagueUrl);
     const seasonSelects = getNodeList(doc, 'select._js_sport-head_select_year');
     const tournamentSelects = getNodeList(doc, 'select._js_sport-head_select');
-    const seasonMap = new Map<string, {url: string; id: string}[]>();
+    const seasonMap = new Map<string, TournamentResult[]>();
+    const seasons:SeasonResult[] = [];
     for (let i = 0; i < seasonSelects.length; i++) {
         const select = seasonSelects[i];
         const options = getNodeList(select, 'option[value]');
         for (let j = 0; j < options.length; j++) {
             const option = options[j];
-            seasonMap.set(getAttr(option, 'value'), []);
+            const tournaments:TournamentResult[] = [];
+            const season = getAttr(option, 'value');
+            seasons.push({name: season, tournaments});
+            seasonMap.set(season, tournaments);
         }
     }
     for (let i = 0; i < tournamentSelects.length; i++) {
@@ -22,5 +34,5 @@ export async function getSeasonReferrersLinks(leagueUrl: string) {
             tournaments.push({url: 'https://www.championat.com' + getAttr(option, 'value').replace(/\/table\/.*$/, '/referees.html'), id: getAttr(option, 'data-id')});
         }
     }
-    return seasonMap;
+    return seasons;
 }

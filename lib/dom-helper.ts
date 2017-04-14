@@ -35,7 +35,7 @@ export function getNodeListOrNull<T extends Element>(el: NodeSelector | null, qu
 }
 
 export function getText(el: Element | null, query?: string) {
-    return validateValue((query ? getNode(el, query) : validateValue(el, nullElArgError)).textContent,  `TextContent of ${query} is null`);
+    return validateValue((query ? getNode(el, query) : validateValue(el, nullElArgError)).textContent,  `TextContent of ${query} is null`).trim();
 }
 
 export function getTextOrNull(el: Element | null, query?: string) {
@@ -47,6 +47,16 @@ export function getAttr(el: Element | null, attr: string) {
     return validateValue(validateValue(el, nullElArgError).getAttribute(attr),  `Attribute ${attr} is null`);
 }
 
+
 export function getAttrOrNull(el: Element | null, attr: string) {
     return el && el.getAttribute(attr) || null;
+}
+
+export function getWithRegexp(str: string | null, regexp: RegExp) {
+    if (typeof str !== 'string') throw new Error(`${str} is not a string`);
+    return validateValue(str.match(regexp), `Empty regexp ${regexp} result for: ${str}`)[1];
+}
+
+export function getWithRegexpOrNull(str: string | null, regexp: RegExp) {
+    return typeof str === 'string' && (str.match(regexp) || [null, null])[1];
 }
