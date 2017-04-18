@@ -57,6 +57,7 @@
   },
   "files": [
     "lib/maybe.d.ts",
-    "championat/index.ts"
+    "championat/index.ts",
+    "whoscored/index.ts"
   ]
 }

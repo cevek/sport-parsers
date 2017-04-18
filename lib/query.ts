@@ -1,7 +1,7 @@
-import {get as requestGet, CoreOptions, RequiredUriUrl, RequestResponse} from 'request';
+import {CoreOptions, get as requestGet, RequestResponse} from 'request';
 import {parseDocument} from './jsdom';
 import {readFileSync, writeFileSync} from 'fs';
-export async function get(url: string, options?: CoreOptions & RequiredUriUrl, skipCache?: boolean) {
+export async function get(url: string, options?: CoreOptions, skipCache?: boolean) {
     return new Promise<string>((resolve, reject) => {
         const cacheUrl = __dirname + '/../cache/' + url.replace(/[^a-z0-9\.]/gi, '_').replace(/^https?___(www\.)?/, '') + '.dat';
         if (!skipCache) {
@@ -29,6 +29,6 @@ export async function get(url: string, options?: CoreOptions & RequiredUriUrl, s
     });
 }
 
-export async function getHTML(url: string, options?: CoreOptions & RequiredUriUrl) {
-    return await parseDocument(await get(url, options));
+export async function getHTML(url: string, options?: CoreOptions, skipCache?: boolean) {
+    return await parseDocument(await get(url, options, skipCache));
 }
